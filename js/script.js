@@ -7,24 +7,54 @@ board.addEventListener('click', placeSymbol);
 resetButton.addEventListener('click', resetBoard);
 
 const gameBoard = (function() {
+    let playable = true;
+
     const arrayBoard = [['_', '_', '_'],
                         ['_', '_', '_'],
                         ['_', '_', '_']];
     
+    const checkRows = function(board) {
+        return board.
+                map(row => row.every(cell => cell === row[0] && row[0] !== '_')).
+                    some(row => row === true);
+    };
+
     const checkRowFinish = function() {
-        const cond = arrayBoard.
-            map(row => row.every(cell => cell === row[0] && row[0] !== '_')).
-                some(row => row === true);
-        console.log('Row finish: '+cond);
-        return cond
-    }
+        return checkRows(arrayBoard);
+    };
 
     const checkColFinish = function() {
-        
+        const transposeArray = arrayBoard[0].
+            map((_, idx) => arrayBoard.map(row => row[idx]));
+        return checkRows(transposeArray);
+    }
+
+    const checkDiagFinish = function() {
+        return (arrayBoard[0][0] === arrayBoard[1][1] &&
+                arrayBoard[0][0] === arrayBoard[2][2] &&
+                arrayBoard[0][0] !== '_') || 
+                (arrayBoard[0][2] === arrayBoard[1][1] &&
+                arrayBoard[0][2] === arrayBoard[2][0] &&
+                arrayBoard[0][2] !== '_')
+    }
+
+    const checkDrawFinish = function() {
+        return arrayBoard.map(row => row.every(cell => cell !== '_')).
+                            every(result => result === true);
     }
     
     const checkFinish = function() {
-        checkRowFinish();
+        if (checkDrawFinish()) {
+            alert("It's a draw!")
+            playable = false;
+            return false;
+        }
+
+        if (checkRowFinish() || checkColFinish() || checkDiagFinish()) {
+            playable = false;
+            return true;
+        }
+        
     }
 
     const placeSymbol = function(cell, player) {
@@ -32,16 +62,21 @@ const gameBoard = (function() {
         let [a, b] = position.split('').map(coord => +coord);
         arrayBoard[a][b] = player.symbol;
         console.table(arrayBoard);
-        checkFinish();
+        return checkFinish();
     };
 
     const resetBoard = function () {
         arrayBoard.forEach(row => row.forEach((cell, idx, arr) => {
             arr[idx] = '_';
         }))
-    }
+        playable = true;
+    };
 
-    return {placeSymbol, resetBoard};
+    const isPlayable = function() {
+        return playable;
+    };
+
+    return {placeSymbol, resetBoard, isPlayable};
 })();
 
 const gameFlow = (function() {
@@ -58,9 +93,11 @@ const gameFlow = (function() {
     let currentPlayer = 0;
 
     const placeSymbol = function(cell) {
-        if (cell.textContent === '') {
-            cell.textContent = players[currentPlayer].symbol;
-            gameBoard.placeSymbol(cell, players[currentPlayer]);
+        const player = players[currentPlayer];
+        if (cell.textContent === '' && gameBoard.isPlayable()) {
+            cell.textContent = player.symbol;
+            let result = gameBoard.placeSymbol(cell, player);
+            if (result) alert(player.name + ' has won the game!')
             currentPlayer = currentPlayer ? 0 : 1;
         }
     }
