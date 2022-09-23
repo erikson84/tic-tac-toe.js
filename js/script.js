@@ -1,7 +1,8 @@
 "use strict"
 
 const board = document.querySelector('.board');
-const resetButton = document.querySelector('footer>button');
+const resetButton = document.querySelector('div.button>button');
+const msg = document.querySelector('h2.msg');
 
 board.addEventListener('click', placeSymbol);
 resetButton.addEventListener('click', resetBoard);
@@ -45,7 +46,7 @@ const gameBoard = (function() {
     
     const checkFinish = function() {
         if (checkDrawFinish()) {
-            alert("It's a draw!")
+            msg.textContent = "It's a draw!";   
             playable = false;
             return false;
         }
@@ -61,7 +62,6 @@ const gameBoard = (function() {
         const position = cell.dataset.cell;
         let [a, b] = position.split('').map(coord => +coord);
         arrayBoard[a][b] = player.symbol;
-        console.table(arrayBoard);
         return checkFinish();
     };
 
@@ -85,25 +85,31 @@ const gameFlow = (function() {
         return {name, symbol}
     };
 
-    const playerOne = Player('Player One', 'X');
-    const playerTwo = Player('Player Two', 'O')
+    const playerOne = Player('Player One', '✕');
+    const playerTwo = Player('Player Two', '◯')
     
     const players = [playerOne, playerTwo];
 
-    let currentPlayer = 0;
+    let currentPlayerIdx = 0;
+    let player = players[currentPlayerIdx];
 
     const placeSymbol = function(cell) {
-        const player = players[currentPlayer];
         if (cell.textContent === '' && gameBoard.isPlayable()) {
             cell.textContent = player.symbol;
             let result = gameBoard.placeSymbol(cell, player);
-            if (result) alert(player.name + ' has won the game!')
-            currentPlayer = currentPlayer ? 0 : 1;
+            if (result) {
+                msg.textContent = player.name + ' has won the game!'
+                return
+            }
+            currentPlayerIdx = currentPlayerIdx ? 0 : 1;
+            player = players[currentPlayerIdx];
+            msg.textContent = player.name + ' plays with ' + player.symbol;
         }
     }
 
     const restartGame = function() {
-        currentPlayer = 0;
+        currentPlayerIdx = 0;
+        player = players[currentPlayerIdx];
     }
 
     return {placeSymbol, restartGame}
@@ -116,6 +122,7 @@ function placeSymbol(e) {
 
 function resetBoard() {
     board.childNodes.forEach(div => div.textContent = '');
+    msg.textContent = "Player One starts with ✕";
     gameBoard.resetBoard();
     gameFlow.restartGame();
 }

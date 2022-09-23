@@ -8,7 +8,7 @@ body {
     padding: 0;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     display: grid;
-    grid-template-rows: 15vh 70vh 15vh;
+    grid-template-rows: 15vh 60vh 25vh;
 }
 
 header,
@@ -16,6 +16,7 @@ footer {
     background-color: #0f172a;
     color: #f8fafc;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     text-shadow: 2px 2px 5px #414852;
@@ -30,14 +31,30 @@ footer {
     box-shadow: 0px -2px 4px #94a3b8;
 }
 
-footer > button {
+h2.msg {
+    display: flex;
+    flex: 1;
+    padding: 5px;
+    margin: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+div.button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button > button {
     font-size: larger;
     font-weight: bolder;
     background-color: #cbd5e1;
     color: #334155;
     border: 0;
     border-radius: 10px;
-    height: 40%;
+    height: 80%;
     padding: 10px;
     box-shadow: 0px 0px 5px 5px #94a3b8;
 }
