@@ -45,16 +45,17 @@ const gameBoard = (function() {
     }
     
     const checkFinish = function() {
-        if (checkDrawFinish()) {
-            msg.textContent = "It's a draw!";   
-            playable = false;
-            return false;
-        }
-
         if (checkRowFinish() || checkColFinish() || checkDiagFinish()) {
             playable = false;
-            return true;
+            return 'finish';
         }
+
+        if (checkDrawFinish()) {
+            playable = false;
+            return 'draw';
+        }
+
+        return 'playing'
         
     }
 
@@ -88,28 +89,28 @@ const gameFlow = (function() {
     const playerOne = Player('Player One', '✕');
     const playerTwo = Player('Player Two', '◯')
     
-    const players = [playerOne, playerTwo];
-
-    let currentPlayerIdx = 0;
-    let player = players[currentPlayerIdx];
+    let currentPlayer = playerOne;
 
     const placeSymbol = function(cell) {
         if (cell.textContent === '' && gameBoard.isPlayable()) {
-            cell.textContent = player.symbol;
-            let result = gameBoard.placeSymbol(cell, player);
-            if (result) {
-                msg.textContent = player.name + ' has won the game!'
-                return
+            cell.textContent = currentPlayer.symbol;
+            let result = gameBoard.placeSymbol(cell, currentPlayer);
+            switch (result) {
+                case 'draw':
+                    msg.textContent = "It's a Draw!";
+                    break;
+                case 'finish':
+                    msg.textContent = currentPlayer.name + ' has won the game!'
+                    break;
+                case 'playing':
+                    currentPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
+                    msg.textContent = currentPlayer.name + ' plays with ' + currentPlayer.symbol;        
             }
-            currentPlayerIdx = currentPlayerIdx ? 0 : 1;
-            player = players[currentPlayerIdx];
-            msg.textContent = player.name + ' plays with ' + player.symbol;
         }
     }
 
     const restartGame = function() {
-        currentPlayerIdx = 0;
-        player = players[currentPlayerIdx];
+        currentPlayer = playerOne;
     }
 
     return {placeSymbol, restartGame}
